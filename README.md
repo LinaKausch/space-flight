@@ -1,15 +1,15 @@
 # Space Flight
 
-✨ **Fully Vibe Coded** ✨
+**Fully Vibe Coded**
 
 A dynamic and immersive space flight experience built with pure creativity and smooth animations. This project showcases interactive web-based graphics with an engaging visual narrative.
 
 ## Features
 
-- 🚀 Smooth, fluid animations
-- 🌌 Immersive space-themed visuals
-- ⚡ Responsive and interactive experiences
-- 🎨 Carefully crafted design and styling
+- Smooth, fluid animations
+- Immersive space-themed visuals
+- Responsive and interactive experiences
+- Carefully crafted design and styling
 
 ## Files
 
@@ -25,4 +25,4 @@ A dynamic and immersive space flight experience built with pure creativity and s
 
 ---
 
-*Crafted with ✨ vibes*
+*Crafted with vibes*
