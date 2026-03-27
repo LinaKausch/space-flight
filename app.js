@@ -54,11 +54,11 @@ function spawnStar(star, z) {
     star.x = Math.cos(angle) * radius;
     star.y = Math.sin(angle) * radius;
     star.z = z;
-    star.size = rand(0.6, 2.6);
-    star.temp = rand(0.5, 1);
+    star.size = rand(0.01, 0.2);
+    star.temp = rand(0.1, 0.3);
     star.prevX = null;
     star.prevY = null;
-    star.alpha = rand(0.3, 1);
+    star.alpha = 1;
 }
 
 function buildStars() {
@@ -185,18 +185,6 @@ function drawBackground() {
     ctx.fillRect(-state.width * 0.85, -state.height * 0.45, state.width * 1.7, state.height * 0.9);
     ctx.restore();
 
-    for (let i = 0; i < state.backdropStars.length; i += 1) {
-        const s = state.backdropStars[i];
-        const tw = 0.6 + Math.sin(state.time * 0.35 + s.twinkle) * 0.4;
-        const sx = s.x * state.width + state.yaw * 26;
-        const sy = s.y * state.height + state.pitch * 20;
-        const light = 68 + tw * 20;
-        ctx.globalAlpha = s.alpha * (0.35 + tw * 0.65);
-        ctx.fillStyle = `hsla(${s.hue}, 75%, ${light}%, 0.95)`;
-        ctx.beginPath();
-        ctx.arc(sx, sy, Math.max(0.3, s.size * 0.7), 0, Math.PI * 2);
-        ctx.fill();
-    }
     ctx.globalAlpha = 1;
 
     const vignette = ctx.createRadialGradient(
@@ -261,7 +249,7 @@ function drawStars(dt) {
         trailCtx.globalAlpha = (0.14 + brightness * 0.45) * star.alpha;
         trailCtx.fillStyle = `hsla(${205 + star.temp * 28}, 85%, ${starLight}%, 0.95)`;
 
-        if (star.prevX !== null && star.prevY !== null) {
+        if (star.prevX !== null && star.prevY !== null && p.z > 15) {
             trailCtx.strokeStyle = `hsla(${205 + star.temp * 28}, 100%, ${starLight}%, ${(0.12 + brightness * 0.45) * star.alpha})`;
             trailCtx.lineWidth = Math.max(0.5, radius * (0.4 + persistence * 0.6));
             const vx = sx - star.prevX;
