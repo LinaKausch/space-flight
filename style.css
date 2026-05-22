@@ -22,7 +22,7 @@ body {
     height: 100vh;
 }
 
-.hud {
+/* .hud {
     position: fixed;
     top: 14px;
     left: 14px;
@@ -37,7 +37,7 @@ body {
     color: #e2efff;
     backdrop-filter: blur(8px);
     font-size: 12px;
-}
+} */
 
 .title {
     text-transform: uppercase;
@@ -45,7 +45,7 @@ body {
     color: #c6dbff;
     font-weight: 600;
 }
-
+/* 
 .hud button {
     border: 1px solid rgba(196, 220, 255, 0.46);
     border-radius: 999px;
@@ -55,8 +55,8 @@ body {
     font-size: 12px;
     padding: 5px 10px;
     cursor: pointer;
-}
-
+} */
+/* 
 .hint {
     position: fixed;
     right: 14px;
@@ -70,7 +70,7 @@ body {
     letter-spacing: 0.03em;
     font-size: 11px;
     pointer-events: none;
-}
+} */
 
 @media (max-width: 760px) {
     .hud {

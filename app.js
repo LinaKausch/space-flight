@@ -27,14 +27,14 @@ const state = {
     wanderPhaseB: Math.random() * Math.PI * 2,
     wanderPhaseC: Math.random() * Math.PI * 2,
     backdropStars: [],
-    nebulae: [],
+    // nebulae: [],
     stars: []
 };
 
 const STAR_COUNT = 1700;
 const STAR_SPAWN_Z = 2600;
 const STAR_KILL_Z = -80;
-const STAR_RADIUS = 1300;
+const STAR_RADIUS = 1500;
 
 function rand(min, max) {
     return min + Math.random() * (max - min);
@@ -54,8 +54,8 @@ function spawnStar(star, z) {
     star.x = Math.cos(angle) * radius;
     star.y = Math.sin(angle) * radius;
     star.z = z;
-    star.size = rand(0.01, 0.2);
-    star.temp = rand(0.1, 0.3);
+    star.size = rand(0.1, 0.6);
+    star.temp = rand(0.5, 1);
     star.prevX = null;
     star.prevY = null;
     star.alpha = 1;
@@ -71,31 +71,8 @@ function buildStars() {
 }
 
 function buildBackdrop() {
-    state.backdropStars.length = 0;
-    state.nebulae.length = 0;
-
-    const bgCount = Math.floor((state.width * state.height) / 1500);
-    for (let i = 0; i < bgCount; i += 1) {
-        state.backdropStars.push({
-            x: Math.random(),
-            y: Math.random(),
-            size: rand(0.35, 1.6),
-            alpha: rand(0.12, 0.85),
-            hue: rand(190, 235),
-            twinkle: rand(0, Math.PI * 2)
-        });
-    }
-
-    for (let i = 0; i < 7; i += 1) {
-        state.nebulae.push({
-            x: rand(0.08, 0.92),
-            y: rand(0.08, 0.92),
-            radius: rand(Math.min(state.width, state.height) * 0.2, Math.min(state.width, state.height) * 0.5),
-            hue: rand(198, 244),
-            alpha: rand(0.03, 0.08),
-            drift: rand(0, Math.PI * 2)
-        });
-    }
+    // state.backdropStars.length = 0;
+    // state.nebulae.length = 0;
 }
 
 function resize() {
@@ -164,47 +141,14 @@ function updateAutopilot(dt) {
 }
 
 function drawBackground() {
-    const grad = ctx.createLinearGradient(0, 0, 0, state.height);
-    grad.addColorStop(0, "#0b1123");
-    grad.addColorStop(0.4, "#080d1a");
-    grad.addColorStop(0.78, "#04070f");
-    grad.addColorStop(1, "#020309");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, state.width, state.height);
-
-    ctx.save();
-    ctx.translate(state.halfW + state.yaw * 70, state.halfH + state.pitch * 50);
-    ctx.rotate(-0.35 + state.roll * 0.08);
-    const band = ctx.createLinearGradient(0, -state.height * 0.34, 0, state.height * 0.34);
-    band.addColorStop(0, "rgba(0, 0, 0, 0)");
-    band.addColorStop(0.42, "rgba(120, 160, 235, 0.06)");
-    band.addColorStop(0.5, "rgba(170, 206, 255, 0.12)");
-    band.addColorStop(0.58, "rgba(120, 160, 235, 0.06)");
-    band.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = band;
-    ctx.fillRect(-state.width * 0.85, -state.height * 0.45, state.width * 1.7, state.height * 0.9);
-    ctx.restore();
-
-    ctx.globalAlpha = 1;
-
-    const vignette = ctx.createRadialGradient(
-        state.halfW,
-        state.halfH,
-        Math.min(state.width, state.height) * 0.18,
-        state.halfW,
-        state.halfH,
-        Math.max(state.width, state.height) * 0.8
-    );
-    vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
-    vignette.addColorStop(1, "rgba(0, 0, 0, 0.58)");
-    ctx.fillStyle = vignette;
+    ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, state.width, state.height);
 }
 
 function drawStars(dt) {
     const persistence = clamp((state.speed - 70) / 520, 0, 1);
     trailCtx.globalCompositeOperation = "source-over";
-    const fadeAlpha = 0.05 + (0.15 - persistence * 0.08); // tweak values
+    const fadeAlpha = 0.02 + (0.08 - persistence * 0.05); // tweak values
     trailCtx.fillStyle = `rgba(2, 4, 10, ${fadeAlpha})`;
     trailCtx.fillRect(0, 0, state.width, state.height);
 
@@ -235,7 +179,7 @@ function drawStars(dt) {
         }
 
         const brightness = clamp((STAR_SPAWN_Z - star.z) / STAR_SPAWN_Z, 0.1, 1);
-        const radius = star.size * (0.3 + perspective * 1.25);
+        const radius = star.size * (0.2 + perspective * 0.8);
 
         const starLight = 72 + brightness * 24;
         ctx.globalAlpha = (0.12 + brightness * 0.75) * star.alpha;
@@ -249,24 +193,44 @@ function drawStars(dt) {
         trailCtx.globalAlpha = (0.14 + brightness * 0.45) * star.alpha;
         trailCtx.fillStyle = `hsla(${205 + star.temp * 28}, 85%, ${starLight}%, 0.95)`;
 
-        if (star.prevX !== null && star.prevY !== null && p.z > 15) {
-            trailCtx.strokeStyle = `hsla(${205 + star.temp * 28}, 100%, ${starLight}%, ${(0.12 + brightness * 0.45) * star.alpha})`;
-            trailCtx.lineWidth = Math.max(0.5, radius * (0.4 + persistence * 0.6));
+        if (star.prevX !== null && star.prevY !== null) {
             const vx = sx - star.prevX;
             const vy = sy - star.prevY;
             const speed2d = Math.hypot(vx, vy);
-            const trailScale = Math.min(36, 3.6 + state.speed * 0.048) * (0.58 + persistence * 0.98);
-            trailCtx.beginPath();
-            trailCtx.moveTo(sx, sy);
+            const trailScale = Math.min(288, 28.8 + state.speed * 0.384) * (0.58 + persistence * 0.98);
+
+            let endX = sx;
+            let endY = sy;
             if (speed2d > 0.0001) {
                 const nx = vx / speed2d;
                 const ny = vy / speed2d;
-                const trailLength = Math.max(0.6, speed2d * trailScale);
-                trailCtx.lineTo(sx - nx * trailLength, sy - ny * trailLength);
+                const trailLength = Math.max(0.9, speed2d * trailScale);
+                endX = sx - nx * trailLength;
+                endY = sy - ny * trailLength;
             } else {
-                trailCtx.lineTo(star.prevX, star.prevY);
+                endX = star.prevX;
+                endY = star.prevY;
             }
-            trailCtx.stroke();
+
+            // Draw trail as circles fading away
+            const trailSteps = 12;
+            for (let step = 0; step < trailSteps; step++) {
+                const t = step / trailSteps;
+                const trailX = sx + (endX - sx) * t;
+                const trailY = sy + (endY - sy) * t;
+                const opacity = 1 - t;
+
+                trailCtx.fillStyle = `hsla(${205 + star.temp * 28}, 100%, ${starLight}%, ${opacity * star.alpha})`;
+                trailCtx.beginPath();
+                trailCtx.arc(trailX, trailY, radius, 0, Math.PI * 2);
+                trailCtx.fill();
+            }
+
+            // Draw circle at tail start to fill gap
+            trailCtx.fillStyle = `hsla(${205 + star.temp * 28}, 100%, ${starLight}%, ${1 * star.alpha})`;
+            trailCtx.beginPath();
+            trailCtx.arc(sx, sy, radius, 0, Math.PI * 2);
+            trailCtx.fill();
         }
         // trailCtx.beginPath();
         // trailCtx.arc(sx, sy, Math.max(0.35, radius * (0.5 + persistence * 0.8)), 0, Math.PI * 2);
@@ -280,42 +244,26 @@ function drawStars(dt) {
     ctx.globalAlpha = 1;
 }
 
-function drawCenterGlow() {
-    const pulse = 0.4 + 0.6 * Math.sin(state.time * 0.7);
-    const r = Math.min(state.width, state.height) * 0.16;
-    const glow = ctx.createRadialGradient(
-        state.halfW,
-        state.halfH,
-        2,
-        state.halfW,
-        state.halfH,
-        r
-    );
-    glow.addColorStop(0, `rgba(166, 206, 255, ${0.34 * pulse})`);
-    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
-    const bloom = ctx.createRadialGradient(
-        state.halfW,
-        state.halfH,
-        r * 0.15,
-        state.halfW,
-        state.halfH,
-        r * 2.4
-    );
-    bloom.addColorStop(0, `rgba(196, 224, 255, ${0.24 * pulse})`);
-    bloom.addColorStop(1, "rgba(0, 0, 0, 0)");
+// function drawCenterGlow() {
+//     const pulse = 0.4 + 0.6 * Math.sin(state.time * 0.7);
+//     const r = Math.min(state.width, state.height) * 0.16;
+//     const glow = ctx.createRadialGradient(
+//         state.halfW,
+//         state.halfH,
+//         2,
+//         state.halfW,
+//         state.halfH,
+//         r
+//     );
+//     glow.addColorStop(0, `rgba(166, 206, 255, 1)`);
+//     glow.addColorStop(1, "rgba(0, 0, 0, 0)");
 
-    ctx.globalCompositeOperation = "screen";
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(state.halfW, state.halfH, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = bloom;
-    ctx.beginPath();
-    ctx.arc(state.halfW, state.halfH, r * 2.4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalCompositeOperation = "source-over";
-}
+//     ctx.globalCompositeOperation = "source-over";
+//     ctx.fillStyle = glow;
+//     ctx.beginPath();
+//     ctx.arc(state.halfW, state.halfH, r, 0, Math.PI * 2);
+//     ctx.fill();
+// }
 
 function updateUI() {
     speedReadout.textContent = `Speed ${(state.speed / 150).toFixed(2)}x`;
@@ -327,7 +275,7 @@ function render(dt) {
     ctx.globalAlpha = 1;
     ctx.drawImage(trailCanvas, 0, 0, state.width, state.height);
     drawStars(dt);
-    drawCenterGlow();
+    // drawCenterGlow();
     ctx.globalCompositeOperation = "source-over";
 }
 
