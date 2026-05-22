@@ -509,60 +509,105 @@ function drawStars(dt) {
 
         // ---- STAR BODY ----
         ctx.globalAlpha = 0.8;
-        ctx.fillStyle = `hsla(${210 + star.temp * 30}, 90%, 75%, 1)`;
+        ctx.fillStyle = `white`;
 
+        // ctx.beginPath();
+        // ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        // ctx.fill();
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
         ctx.fill();
 
         // ---- TRAIL BUFFER ----
-        if (
-            star.trail.length === 0 ||
-            Math.hypot(
-                sx - star.trail[star.trail.length - 1].x,
-                sy - star.trail[star.trail.length - 1].y
-            ) > 2
-        ) {
+        // star.trail.push({ x: sx, y: sy });
+        const last = star.trail[star.trail.length - 1];
+
+        if (!last || Math.hypot(sx - last.x, sy - last.y) > 0.5) {
             star.trail.push({ x: sx, y: sy });
         }
 
-        if (star.trail.length > 24) star.trail.shift();
+        const maxTrail = 24;
+
+        if (star.trail.length > maxTrail) {
+            star.trail.shift();
+        }
+        if (star.trail.length > 260) star.trail.shift();
 
         // ---- SMOOTH TRAIL ----
-        if (star.trail.length > 2) {
+        // if (star.trail.length > 2) {
+
+        //     trailCtx.beginPath();
+        //     trailCtx.moveTo(star.trail[0].x, star.trail[0].y);
+
+        //     for (let i = 1; i < star.trail.length - 1; i++) {
+        //         const c = star.trail[i];
+        //         const n = star.trail[i + 1];
+
+        //         const mx = (c.x + n.x) / 2;
+        //         const my = (c.y + n.y) / 2;
+
+        //         trailCtx.quadraticCurveTo(c.x, c.y, mx, my);
+        //     }
+
+        //     const head = star.trail[star.trail.length - 1];
+
+        //     const grad = trailCtx.createLinearGradient(
+        //         star.trail[0].x,
+        //         star.trail[0].y,
+        //         head.x,
+        //         head.y
+        //     );
+
+        //     grad.addColorStop(0, "rgba(255,255,255,0)");
+        //     grad.addColorStop(1, `white`);
+
+        //     trailCtx.strokeStyle = grad;
+        //     trailCtx.lineWidth = radius * 2;
+        //     trailCtx.lineCap = "round";
+        //     trailCtx.lineJoin = "round";
+
+        //     trailCtx.stroke();
+        // }
+        if (star.trail.length > 1) {
 
             trailCtx.beginPath();
             trailCtx.moveTo(star.trail[0].x, star.trail[0].y);
 
-            for (let i = 1; i < star.trail.length - 1; i++) {
-                const c = star.trail[i];
-                const n = star.trail[i + 1];
-
-                const mx = (c.x + n.x) / 2;
-                const my = (c.y + n.y) / 2;
-
-                trailCtx.quadraticCurveTo(c.x, c.y, mx, my);
+            for (let i = 1; i < star.trail.length; i++) {
+                trailCtx.lineTo(star.trail[i].x, star.trail[i].y);
             }
 
-            const head = star.trail[star.trail.length - 1];
-
-            const grad = trailCtx.createLinearGradient(
-                star.trail[0].x,
-                star.trail[0].y,
-                head.x,
-                head.y
-            );
-
-            grad.addColorStop(0, "rgba(0,0,0,0)");
-            grad.addColorStop(1, `hsla(${210 + star.temp * 30},100%,70%,1)`);
-
-            trailCtx.strokeStyle = grad;
+            trailCtx.strokeStyle = "white";
             trailCtx.lineWidth = radius * 2;
             trailCtx.lineCap = "round";
-            trailCtx.lineJoin = "round";
-
             trailCtx.stroke();
         }
+
+
+        // if (star.trail.length > 1) {
+
+        //     trailCtx.beginPath();
+
+        //     for (let i = 0; i < star.trail.length; i++) {
+
+        //         const p3 = star.trail[i];
+        //         const p = rotatePoint(p3.x, p3.y, p3.z);
+
+        //         if (p.z <= 2) continue;
+
+        //         const perspective = state.focal / p.z;
+        //         const x = state.halfW + p.x * perspective;
+        //         const y = state.halfH + p.y * perspective;
+
+        //         if (i === 0) trailCtx.moveTo(x, y);
+        //         else trailCtx.lineTo(x, y);
+        //     }
+
+        //     trailCtx.strokeStyle = "white";
+        //     trailCtx.lineWidth = radius * 2.5;
+        //     trailCtx.lineCap = "round";
+        //     trailCtx.stroke();
+        // }
     }
 
     ctx.globalCompositeOperation = "source-over";
